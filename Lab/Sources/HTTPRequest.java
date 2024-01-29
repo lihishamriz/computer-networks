@@ -9,7 +9,7 @@ public class HTTPRequest {
     private String userAgent;
     private HashMap<String, String> parameters;
 
-    private String[] imageExtensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp", ".svg"};
+    private String[] imageExtensions = {".bmp", ".gif", ".png", ".jpg"};
 
     public HTTPRequest(String requestHeader) {
         parameters = new HashMap<>();
