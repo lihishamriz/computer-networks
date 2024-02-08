@@ -17,14 +17,14 @@ public class HTTPResponse {
     public void generateResponse(OutputStream output) {
         String type = httpRequest.getType();
         if (!type.equals("GET") && !type.equals("POST") && !type.equals("HEAD") && !type.equals("TRACE")) {
-            sendResponse(output, 501, "Not Implemented", null);
+            sendNotImplementedResponse(output);
             return;
         }
 
         String requestedPage = httpRequest.getRequestedPage();
         Path filePath = Paths.get(rootPath + requestedPage);
         if (!Files.exists(filePath) || Files.isDirectory(filePath)) {
-            sendResponse(output, 404, "Not Found", null);
+            sendNotFoundResponse(output);
             return;
         }
 
@@ -34,23 +34,44 @@ public class HTTPResponse {
             String contentType = getContentType(requestedPage);
             String contentLength = String.valueOf(fileBytes.length);
 
-            String responseHeader = "HTTP/1.1 200 OK\r\n" +
-                    "Content-Type: " + contentType + "\r\n" +
-                    "Content-Length: " + contentLength + "\r\n" +
-                    "\r\n";
+            sendOKResponse(output, fileBytes, contentType, contentLength);
+        } catch (Exception e) {
+            sendInternalServerErrorResponse(output);
+        }
+    }
 
-            System.out.println("Response Header:");
-            System.out.println(responseHeader);
+    private void sendOKResponse(OutputStream output, byte[] fileBytes, String contentType, String contentLength) {
+        String responseHeader = "HTTP/1.1 200 OK\r\n" +
+                "Content-Type: " + contentType + "\r\n" +
+                "Content-Length: " + contentLength + "\r\n" +
+                "\r\n";
 
-            System.out.write(responseHeader.getBytes());
-            System.out.write(fileBytes);
+        System.out.println("Response Header:");
+        System.out.println(responseHeader);
 
+        try {
             output.write(responseHeader.getBytes());
             output.write(fileBytes);
             output.flush();
         } catch (IOException e) {
-            sendResponse(output, 500, "Internal Server Error", null);
+            e.printStackTrace();
         }
+    }
+
+    private void sendNotFoundResponse(OutputStream output) {
+        sendResponse(output, 404, "Not Found", null);
+    }
+
+    private void sendNotImplementedResponse(OutputStream output) {
+        sendResponse(output, 501, "Not Implemented", null);
+    }
+
+    private void sendBadRequestResponse(OutputStream output) {
+        sendResponse(output, 400, "Bad Request", null);
+    }
+
+    private void sendInternalServerErrorResponse(OutputStream output) {
+        sendResponse(output, 500, "Internal Server Error", null);
     }
 
     private void sendResponse(OutputStream output, int statusCode, String statusMessage, Exception e) {

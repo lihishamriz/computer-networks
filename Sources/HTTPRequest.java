@@ -1,15 +1,13 @@
 import java.util.HashMap;
 
 public class HTTPRequest {
-    private String type;
-    private String requestedPage;
+    private final String type;
+    private final String requestedPage;
     private boolean isImage = false;
     private int contentLength;
     private String referer;
     private String userAgent;
-    private HashMap<String, String> parameters;
-
-    private String[] imageExtensions = {".bmp", ".gif", ".png", ".jpg"};
+    private final HashMap<String, String> parameters;
 
     public HTTPRequest(String requestHeader) {
         parameters = new HashMap<>();
@@ -19,7 +17,8 @@ public class HTTPRequest {
         String[] firstLineParts = lines[0].split(" ");
         type = firstLineParts[0];
         requestedPage = firstLineParts[1];
-        
+
+        String[] imageExtensions = {".bmp", ".gif", ".png", ".jpg"};
         for (String extension : imageExtensions) {
             if (requestedPage.toLowerCase().endsWith(extension)) {
                 isImage = true;
@@ -76,23 +75,5 @@ public class HTTPRequest {
 
     public HashMap<String, String> getParameters() {
         return parameters;
-    }
-
-    public static void main(String[] args) {
-        String header = "GET /index.html?q=hello&lang=en HTTP/1.1\n" +
-                        "Host: www.example.com\n" +
-                        "User-Agent: Mozilla/5.0\n" +
-                        "Referer: http://www.google.com\n" +
-                        "Content-Length: 100\n";
-
-        HTTPRequest httpRequest = new HTTPRequest(header);
-
-        System.out.println("Type: " + httpRequest.getType());
-        System.out.println("Requested Page: " + httpRequest.getRequestedPage());
-        System.out.println("Is Image: " + httpRequest.getIsImage());
-        System.out.println("Content Length: " + httpRequest.getContentLength());
-        System.out.println("Referer: " + httpRequest.getReferer());
-        System.out.println("User Agent: " + httpRequest.getUserAgent());
-        System.out.println("Parameters: " + httpRequest.getParameters());
     }
 }
