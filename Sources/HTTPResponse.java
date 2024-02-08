@@ -2,6 +2,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.*;
 
 public class HTTPResponse {
     private HTTPRequest httpRequest;
@@ -89,6 +90,20 @@ public class HTTPResponse {
 
     public static void main(String[] args) {
         // Sample request headers
+        Path directory = Paths.get("");
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory)) {
+            for (Path file : stream) {
+                if (Files.isDirectory(file)) {
+                    System.out.println("Directory: " + file.getFileName());
+                } else {
+                    System.out.println("File: " + file.getFileName());
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         String header = "GET index.html HTTP/1.1\n" +
                 "Host: www.example.com\n" +
                 "User-Agent: Mozilla/5.0\n" +
