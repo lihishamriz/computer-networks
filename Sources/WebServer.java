@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -48,15 +47,18 @@ public class WebServer {
         try (
                 BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 OutputStream output = clientSocket.getOutputStream();
-                PrintWriter writer = new PrintWriter(output, true)
         ) {
             // Read the HTTP request from the client
             String request = reader.readLine();
             System.out.println("Received request: " + request);
 
+            HTTPRequest httpRequest = new HTTPRequest(request);
+            HTTPResponse httpResponse = new HTTPResponse(httpRequest, "www/lab/html");
+            httpResponse.generateResponse(output);
+
             // Send a simple HTTP response back to the client
-            String response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, this is a simple web server!";
-            writer.println(response);
+//            String response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, this is a simple web server!";
+//            writer.println(response);
 
             // Close the connection
             clientSocket.close();

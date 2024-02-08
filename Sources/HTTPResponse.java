@@ -2,121 +2,100 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.*;
 
 public class HTTPResponse {
-    private HTTPRequest httpRequest;
-    private String rootPath;
-
-    private int statusCode;
-    private String statusMessage;
-    private String contentType;
-    private String contentLength;
+    private final HTTPRequest httpRequest;
+    private final String rootPath;
 
     public HTTPResponse(HTTPRequest httpRequest, String rootPath) {
         this.httpRequest = httpRequest;
         this.rootPath = rootPath;
     }
 
-    public void generateResponse() {
+    public void generateResponse(OutputStream output) {
         String type = httpRequest.getType();
         if (!type.equals("GET") && !type.equals("POST") && !type.equals("HEAD") && !type.equals("TRACE")) {
-            statusCode = 501;
-            statusMessage = "Not Implemented";
-            sendResponse();
+            sendResponse(output, 501, "Not Implemented", null);
             return;
         }
 
         String requestedPage = httpRequest.getRequestedPage();
         Path filePath = Paths.get(rootPath + requestedPage);
         if (!Files.exists(filePath) || Files.isDirectory(filePath)) {
-            statusCode = 404;
-            statusMessage = "Not Found";
-            sendResponse();
+            sendResponse(output, 404, "Not Found", null);
             return;
         }
 
         try {
-            byte[] fileBytes = Files.readAllBytes(filePath);
-            contentType = getContentType(requestedPage);
-            contentLength = String.valueOf(fileBytes.length);
+            File file = filePath.toFile();
+            byte[] fileBytes = readFile(file);
+            String contentType = getContentType(requestedPage);
+            String contentLength = String.valueOf(fileBytes.length);
 
-            statusCode = 200;
-            statusMessage = "OK";
-
-            // Create HTTP response header
             String responseHeader = "HTTP/1.1 200 OK\r\n" +
-                    "content-type: " + contentType + "\r\n" +
-                    "content-length: " + contentLength + "\r\n" +
+                    "Content-Type: " + contentType + "\r\n" +
+                    "Content-Length: " + contentLength + "\r\n" +
                     "\r\n";
 
-            // Print the response header
             System.out.println("Response Header:");
             System.out.println(responseHeader);
 
-            // Send the response to the client
             System.out.write(responseHeader.getBytes());
             System.out.write(fileBytes);
+
+            output.write(responseHeader.getBytes());
+            output.write(fileBytes);
+            output.flush();
         } catch (IOException e) {
-            statusCode = 500;
-            statusMessage = "Internal Server Error";
-            sendResponse();
+            sendResponse(output, 500, "Internal Server Error", null);
         }
     }
 
-    private void sendResponse() {
+    private void sendResponse(OutputStream output, int statusCode, String statusMessage, Exception e) {
         String response = "HTTP/1.1 " + statusCode + " " + statusMessage + "\r\n\r\n";
         System.out.println("Response Header:");
         System.out.println(response);
+
+        try {
+            output.write(response.getBytes());
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+
+        if (e != null) {
+            e.printStackTrace();
+        }
     }
 
     private String getContentType(String fileName) {
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
-        switch (extension) {
-            case "html":
-                return "text/html";
-            case "bmp":
-                return "image/bmp";
-            case "gif":
-                return "image/gif";
-            case "png":
-                return "image/png";
-            case "jpg":
-                return "image/jpeg";
-            default:
-                return "application/octet-stream";
-        }
+        return switch (extension) {
+            case "html" -> "text/html";
+            case "bmp" -> "image/bmp";
+            case "gif" -> "image/gif";
+            case "png" -> "image/png";
+            case "jpg" -> "image/jpeg";
+            default -> "application/octet-stream";
+        };
     }
 
-    public static void main(String[] args) {
-        // Sample request headers
-        Path directory = Paths.get("");
+    private byte[] readFile(File file) {
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            byte[] bFile = new byte[(int)file.length()];
 
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory)) {
-            for (Path file : stream) {
-                if (Files.isDirectory(file)) {
-                    System.out.println("Directory: " + file.getFileName());
-                } else {
-                    System.out.println("File: " + file.getFileName());
-                }
+            // read until the end of the stream.
+            while(fis.available() != 0) {
+                fis.read(bFile, 0, bFile.length);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+
+            return bFile;
         }
-
-        String header = "GET index.html HTTP/1.1\n" +
-                "Host: www.example.com\n" +
-                "User-Agent: Mozilla/5.0\n" +
-                "Referer: http://www.google.com\n" +
-                "Content-Length: 100\n";
-        HTTPRequest httpRequest = new HTTPRequest(header);
-        System.out.println(httpRequest.getRequestedPage());
-        String rootPath = "www/lab/html/";
-
-        // Sample HTTPRequest object
-        HTTPResponse httpResponse = new HTTPResponse(httpRequest, rootPath);
-
-        // Generate and send the response
-        httpResponse.generateResponse();
+        catch(FileNotFoundException e) {
+            // do something
+        } catch(IOException e) {
+            // do something
+        }
+        return new byte[0];
     }
 }
