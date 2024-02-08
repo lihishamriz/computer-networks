@@ -53,7 +53,7 @@ public class WebServer {
             System.out.println("Received request: " + request);
 
             HTTPRequest httpRequest = new HTTPRequest(request);
-            HTTPResponse httpResponse = new HTTPResponse(httpRequest, "www/lab/html");
+            HTTPResponse httpResponse = new HTTPResponse(httpRequest);
             httpResponse.generateResponse(output);
 
             // Send a simple HTTP response back to the client

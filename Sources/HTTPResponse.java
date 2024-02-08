@@ -7,9 +7,11 @@ public class HTTPResponse {
     private final HTTPRequest httpRequest;
     private final String rootPath;
 
-    public HTTPResponse(HTTPRequest httpRequest, String rootPath) {
+    public HTTPResponse(HTTPRequest httpRequest) {
         this.httpRequest = httpRequest;
-        this.rootPath = rootPath;
+
+        Config config = new Config("config.ini");
+        this.rootPath = config.getRoot();
     }
 
     public void generateResponse(OutputStream output) {
