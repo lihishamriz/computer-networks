@@ -10,8 +10,7 @@ public class Config {
         try {
             properties.load(new FileReader(configFile));
         } catch (IOException e) {
-            e.printStackTrace();
-            // Handle the exception
+            System.err.println("Error loading configuration: " + e.getMessage());
         }
     }
 

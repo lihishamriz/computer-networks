@@ -1,4 +1,6 @@
+import javax.naming.ConfigurationException;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
@@ -7,7 +9,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class WebServer {
-
     public static void main(String[] args) {
         Config config = new Config("config.ini");
         int port = config.getPort();
@@ -24,8 +25,10 @@ public class WebServer {
                 Runnable worker = new EchoRunnable(clientSocket);
                 executor.execute(worker);
             }
+        } catch (IOException e) {
+            System.err.println("Error starting the server: " + e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Unexpected error occurred: " + e.getMessage());
         }
     }
 
@@ -56,15 +59,10 @@ public class WebServer {
             HTTPResponse httpResponse = new HTTPResponse(httpRequest);
             httpResponse.generateResponse(output);
 
-            // Send a simple HTTP response back to the client
-//            String response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, this is a simple web server!";
-//            writer.println(response);
-
             // Close the connection
             clientSocket.close();
-            System.out.println("Connection closed");
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
     }
 }

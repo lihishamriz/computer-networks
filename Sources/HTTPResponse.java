@@ -22,6 +22,9 @@ public class HTTPResponse {
         }
 
         String requestedPage = httpRequest.getRequestedPage();
+        if(requestedPage.equals("/")){
+            requestedPage = "/index.html";
+        }
         Path filePath = Paths.get(rootPath + requestedPage);
         if (!Files.exists(filePath) || Files.isDirectory(filePath)) {
             sendNotFoundResponse(output);
@@ -54,7 +57,7 @@ public class HTTPResponse {
             output.write(fileBytes);
             output.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
     }
 
@@ -82,11 +85,11 @@ public class HTTPResponse {
         try {
             output.write(response.getBytes());
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            System.err.println(e.getMessage());
         }
 
         if (e != null) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
     }
 
@@ -115,9 +118,9 @@ public class HTTPResponse {
             return bFile;
         }
         catch(FileNotFoundException e) {
-            // do something
+            System.err.println(e.getMessage());
         } catch(IOException e) {
-            // do something
+            System.err.println(e.getMessage());
         }
         return new byte[0];
     }
