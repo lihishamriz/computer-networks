@@ -19,7 +19,7 @@ public class Config {
     }
 
     public String getRoot() {
-        return properties.getProperty("root", "~/www/lab/html/");
+        return properties.getProperty("root", "www/lab/html/");
     }
 
     public String getDefaultPage() {
