@@ -1,8 +1,8 @@
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.util.HashMap;
 
 public class HTTPRequest {
+    private String rawRequest;
     private String type;
     private String requestedPage;
     private boolean isImage = false;
@@ -15,6 +15,7 @@ public class HTTPRequest {
 
     public HTTPRequest(String requestHeader, BufferedReader reader) {
         try {
+            rawRequest = requestHeader;
             parameters = new HashMap<>();
 
             String[] lines = requestHeader.split("\\r?\\n");
@@ -58,11 +59,13 @@ public class HTTPRequest {
                     }
                 }
             }
-        } catch (Error err) {
+        } catch (Exception e) {
             isBadRequest = true;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
+    }
+
+    public String getRawRequest() {
+        return rawRequest;
     }
 
     public String getType() {

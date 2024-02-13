@@ -25,13 +25,11 @@ public class HTTPResponse {
         String type = httpRequest.getType();
         switch (type) {
             case "GET":
-                handleGetRequest();
-                break;
+            case "HEAD":
+                handleGetAndHeadRequest();
+            break;
             case "POST":
                 handlePostRequest();
-                break;
-            case "HEAD":
-                handleHeadRequest();
                 break;
             case "TRACE":
                 handleTraceRequest();
@@ -41,7 +39,7 @@ public class HTTPResponse {
         }
     }
 
-    private void handleGetRequest() {
+    private void handleGetAndHeadRequest() {
         String requestedPage = httpRequest.getRequestedPage();
         if(requestedPage.equals("/")){
             requestedPage = this.config.getDefaultPage();
@@ -58,7 +56,7 @@ public class HTTPResponse {
             String contentType = getContentType(requestedPage);
             String contentLength = String.valueOf(fileBytes.length);
 
-            sendOKResponse(fileBytes, contentType, contentLength);
+            sendOKResponse(fileBytes, contentType, contentLength, this.httpRequest.getType().equals("GET"));
         } catch (Exception e) {
             sendInternalServerErrorResponse();
         }
@@ -80,39 +78,16 @@ public class HTTPResponse {
                     "</html>";
 
             byte[] htmlBytes = htmlContent.getBytes(StandardCharsets.UTF_8);
-            sendOKResponse(htmlBytes, "text/html", String.valueOf(htmlBytes.length));
-        }
-    }
-
-    private void handleHeadRequest() {
-        // Same logic as GET but without sending the response body
-        String requestedPage = httpRequest.getRequestedPage();
-        if(requestedPage.equals("/")){
-            requestedPage = this.config.getDefaultPage();
-        }
-        Path filePath = Paths.get(this.config.getRoot() + requestedPage);
-        if (!Files.exists(filePath) || Files.isDirectory(filePath)) {
-            sendNotFoundResponse();
-            return;
-        }
-
-        try {
-            File file = filePath.toFile();
-            byte[] fileBytes = readFile(file);
-            String contentType = getContentType(requestedPage);
-            String contentLength = String.valueOf(fileBytes.length);
-
-            sendOKResponseHeaders(contentType, contentLength);
-        } catch (Exception e) {
-            sendInternalServerErrorResponse();
+            sendOKResponse(htmlBytes, "text/html", String.valueOf(htmlBytes.length), true);
         }
     }
 
     private void handleTraceRequest() {
-        // Echo back the request
+        String raw = this.httpRequest.getRawRequest();
+        sendOKResponse(raw.getBytes(StandardCharsets.UTF_8), "text/plain", String.valueOf(raw.length()), true);
     }
 
-    private void sendOKResponse(byte[] fileBytes, String contentType, String contentLength) {
+    private void sendOKResponse(byte[] fileBytes, String contentType, String contentLength, Boolean includeBody) {
         String responseHeader = "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: " + contentType + "\r\n" +
                 "Content-Length: " + contentLength + "\r\n" +
@@ -123,44 +98,29 @@ public class HTTPResponse {
 
         try {
             output.write(responseHeader.getBytes());
-            output.write(fileBytes);
+            if (includeBody) {
+                output.write(fileBytes);
+            }
             output.flush();
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
-    }
-
-    private void sendOKResponseHeaders(String contentType, String contentLength) {
-        String responseHeader = "HTTP/1.1 200 OK\r\n" +
-                "Content-Type: " + contentType + "\r\n" +
-                "Content-Length: " + contentLength + "\r\n" +
-                "\r\n";
-
-        System.out.println("Response Header:");
-        System.out.println(responseHeader);
-
-        try {
-            output.write(responseHeader.getBytes());
-            output.flush();
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-    }
-
-    private void sendNotFoundResponse() {
-        sendResponse(404, "Not Found");
-    }
-
-    private void sendNotImplementedResponse() {
-        sendResponse(501, "Not Implemented");
     }
 
     private void sendBadRequestResponse() {
         sendResponse(400, "Bad Request");
     }
 
+    private void sendNotFoundResponse() {
+        sendResponse(404, "Not Found");
+    }
+
     private void sendInternalServerErrorResponse() {
         sendResponse(500, "Internal Server Error");
+    }
+
+    private void sendNotImplementedResponse() {
+        sendResponse(501, "Not Implemented");
     }
 
     private void sendResponse(int statusCode, String statusMessage) {
