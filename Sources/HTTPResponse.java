@@ -88,19 +88,39 @@ public class HTTPResponse {
     }
 
     private void sendOKResponse(byte[] fileBytes, String contentType, String contentLength, Boolean includeBody) {
+        boolean isChunked = this.httpRequest.getIsChunked();
         String responseHeader = "HTTP/1.1 200 OK\r\n" +
-                "Content-Type: " + contentType + "\r\n" +
-                "Content-Length: " + contentLength + "\r\n" +
-                "\r\n";
+                "Content-Type: " + contentType + "\r\n";
 
-        System.out.println("Response Header:");
-        System.out.println(responseHeader);
+
+        if (isChunked) {
+            responseHeader += "Transfer-Encoding: chunked\r\n\r\n";
+        } else {
+            responseHeader += "Content-Length: " + contentLength + "\r\n\r\n";
+        }
+
+        System.out.println("Response header:\n" + responseHeader);
 
         try {
             output.write(responseHeader.getBytes());
+
             if (includeBody) {
-                output.write(fileBytes);
+                if (isChunked) {
+                    int chunkSize = 1024; // Chunk size for demonstration, you can adjust as needed
+                    for (int i = 0; i < fileBytes.length; i += chunkSize) {
+                        int length = Math.min(chunkSize, fileBytes.length - i);
+                        output.write(Integer.toHexString(length).getBytes(StandardCharsets.UTF_8));
+                        output.write("\r\n".getBytes(StandardCharsets.UTF_8));
+                        output.write(fileBytes, i, length);
+                        output.write("\r\n".getBytes(StandardCharsets.UTF_8));
+                    }
+                    // Send the last chunk indicating the end of the response
+                    output.write("0\r\n\r\n".getBytes(StandardCharsets.UTF_8));
+                } else {
+                    output.write(fileBytes);
+                }
             }
+
             output.flush();
         } catch (IOException e) {
             System.err.println(e.getMessage());
@@ -124,12 +144,11 @@ public class HTTPResponse {
     }
 
     private void sendResponse(int statusCode, String statusMessage) {
-        String response = "HTTP/1.1 " + statusCode + " " + statusMessage + "\r\n\r\n";
-        System.out.println("Response Header:");
-        System.out.println(response);
+        String responseHeader = "HTTP/1.1 " + statusCode + " " + statusMessage + "\r\n\r\n";
+        System.out.println("Response header:\n" + responseHeader);
 
         try {
-            output.write(response.getBytes());
+            output.write(responseHeader.getBytes());
         } catch (IOException ioException) {
             sendInternalServerErrorResponse();
         }

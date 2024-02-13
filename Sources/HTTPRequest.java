@@ -10,11 +10,13 @@ public class HTTPRequest {
     private String referer;
     private String userAgent;
     private HashMap<String, String> parameters;
-    private boolean isChuncked = false;
+    private boolean isChunked = false;
     private boolean isBadRequest = false;
 
     public HTTPRequest(String requestHeader, BufferedReader reader) {
         try {
+            System.out.println("Request header:\n" + requestHeader +"\n");
+
             rawRequest = requestHeader;
             parameters = new HashMap<>();
 
@@ -40,7 +42,7 @@ public class HTTPRequest {
                 } else if (line.startsWith("Content-Length: ")) {
                     contentLength = Integer.parseInt(line.substring(16));
                 } else if (line.equals("chunked: yes")) {
-                    isChuncked = true;
+                    isChunked = true;
                 }
             }
 
@@ -94,6 +96,10 @@ public class HTTPRequest {
 
     public HashMap<String, String> getParameters() {
         return parameters;
+    }
+
+    public boolean getIsChunked() {
+        return isChunked;
     }
 
     public boolean getIsBadRequest() {

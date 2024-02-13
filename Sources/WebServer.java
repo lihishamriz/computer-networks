@@ -14,7 +14,7 @@ public class WebServer {
         int port = config.getPort();
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server is listening on port " + port);
+            System.out.println("Server is listening on port " + port + "\n");
             ExecutorService executor = Executors.newFixedThreadPool(config.getMaxThreads());
 
             while (true) {
@@ -59,12 +59,11 @@ public class WebServer {
                 requestBuilder.append(line).append("\r\n");
             }
 
-            String requestHeader = requestBuilder.toString();
-            System.out.println("Received request:\n" + requestHeader);
-
-            HTTPRequest httpRequest = new HTTPRequest(requestHeader, reader);
-            HTTPResponse httpResponse = new HTTPResponse(httpRequest, output);
-            httpResponse.generateResponse();
+            if (!requestBuilder.isEmpty()) {
+                HTTPRequest httpRequest = new HTTPRequest(requestBuilder.toString(), reader);
+                HTTPResponse httpResponse = new HTTPResponse(httpRequest, output);
+                httpResponse.generateResponse();
+            }
 
             // Close the connection
             clientSocket.close();
