@@ -65,19 +65,14 @@ public class HTTPResponse {
     private void handlePostRequest() {
         HashMap<String, String> parameters = this.httpRequest.getParameters();
         if (this.httpRequest.getRequestedPage().equals("/params_info.html")) {
-            String htmlContent = "<!DOCTYPE html>\r\n" +
-                    "<html>\r\n" +
-                    "<head>\r\n" +
-                    "    <title>Submission Details</title>\r\n" +
-                    "</head>\r\n" +
-                    "<body>\r\n" +
-                    "    <h1>Form Submission Details</h1>\r\n" +
-                    "    <p><strong>Message:</strong> " + parameters.get("message") + "</p>\r\n" +
-                    "    <p><strong>Subscribe:</strong> " + parameters.get("subscribe") + "</p>\r\n" +
-                    "</body>\r\n" +
-                    "</html>";
+            File file = Paths.get(this.config.getRoot() + "/params_info.html").toFile();
+            byte[] fileBytes = readFile(file);
 
-            byte[] htmlBytes = htmlContent.getBytes(StandardCharsets.UTF_8);
+            String fileContent = new String(fileBytes, StandardCharsets.UTF_8);
+            fileContent = fileContent.replace("[message]", parameters.get("message"));
+            fileContent = fileContent.replace("[subscribe]", parameters.get("subscribe"));
+
+            byte[] htmlBytes = fileContent.getBytes(StandardCharsets.UTF_8);
             sendOKResponse(htmlBytes, "text/html", String.valueOf(htmlBytes.length), true);
         }
     }
@@ -106,7 +101,7 @@ public class HTTPResponse {
 
             if (includeBody) {
                 if (isChunked) {
-                    int chunkSize = 1024; // Chunk size for demonstration, you can adjust as needed
+                    int chunkSize = 1024;
                     for (int i = 0; i < fileBytes.length; i += chunkSize) {
                         int length = Math.min(chunkSize, fileBytes.length - i);
                         output.write(Integer.toHexString(length).getBytes(StandardCharsets.UTF_8));
@@ -114,7 +109,6 @@ public class HTTPResponse {
                         output.write(fileBytes, i, length);
                         output.write("\r\n".getBytes(StandardCharsets.UTF_8));
                     }
-                    // Send the last chunk indicating the end of the response
                     output.write("0\r\n\r\n".getBytes(StandardCharsets.UTF_8));
                 } else {
                     output.write(fileBytes);
