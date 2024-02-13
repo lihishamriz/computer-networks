@@ -79,7 +79,7 @@ public class HTTPResponse {
 
     private void handleTraceRequest() {
         String raw = this.httpRequest.getRawRequest();
-        sendOKResponse(raw.getBytes(StandardCharsets.UTF_8), "text/plain", String.valueOf(raw.length()), true);
+        sendOKResponse(raw.getBytes(StandardCharsets.UTF_8), "application/octet-stream", String.valueOf(raw.length()), true);
     }
 
     private void sendOKResponse(byte[] fileBytes, String contentType, String contentLength, Boolean includeBody) {

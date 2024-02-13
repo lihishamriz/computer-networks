@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.Test;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,9 +16,11 @@ public class HTTPRequestTest {
     }
 
     @Test
-    public void testPostRequest() {
-        String requestHeader = "POST /submit HTTP/1.1\r\nContent-Length: 21\r\n\r\nmessage=hello&subscribe=yes";
+    public void testPostRequest() throws IOException {
+        String requestHeader = "POST /submit HTTP/1.1\r\nContent-Length: 27\r\n\r\nmessage=hello&subscribe=yes";
         BufferedReader reader = new BufferedReader(new StringReader(requestHeader));
+        String line;
+        while ((line = reader.readLine()) != null && !line.isEmpty()) {}
         HTTPRequest httpRequest = new HTTPRequest(requestHeader, reader);
         HashMap<String, String> expectedParams = new HashMap<>();
         expectedParams.put("message", "hello");

@@ -46,7 +46,7 @@ public class HTTPRequest {
                 }
             }
 
-            if (type.equals("POST") && contentLength > 0) {
+            if (contentLength > 0) {
                 char[] buffer = new char[contentLength];
                 reader.read(buffer, 0, contentLength);
                 String requestBody = new String(buffer);
