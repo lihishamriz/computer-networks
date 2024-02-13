@@ -19,7 +19,6 @@ public class WebServer {
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("Accepted connection from " + clientSocket.getInetAddress());
 
                 // Create a Runnable and submit it to the executor
                 Runnable worker = new EchoRunnable(clientSocket);
@@ -52,12 +51,20 @@ public class WebServer {
                 OutputStream output = clientSocket.getOutputStream();
         ) {
             // Read the HTTP request from the client
-            String request = reader.readLine();
-            System.out.println("Received request: " + request);
+            StringBuilder requestBuilder = new StringBuilder();
+            String line;
 
-            HTTPRequest httpRequest = new HTTPRequest(request);
-            HTTPResponse httpResponse = new HTTPResponse(httpRequest);
-            httpResponse.generateResponse(output);
+            // Read the HTTP request from the client line by line until an empty line is encountered
+            while ((line = reader.readLine()) != null && !line.isEmpty()) {
+                requestBuilder.append(line).append("\r\n");
+            }
+
+            String requestHeader = requestBuilder.toString();
+            System.out.println("Received request:\n" + requestHeader);
+
+            HTTPRequest httpRequest = new HTTPRequest(requestHeader, reader);
+            HTTPResponse httpResponse = new HTTPResponse(httpRequest, output);
+            httpResponse.generateResponse();
 
             // Close the connection
             clientSocket.close();

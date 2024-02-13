@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Computer Networks 2023: Exercise 1</title>
+        <title>Computer Networks 2023: Lab</title>
     </head>
     <body style="text-align: center;">
         <h1>
             <marquee behavior="scroll" direction="left" style="color: blue;">
-                Computer Networks 2023: Exercise 1
+                Computer Networks 2023: Lab
             </marquee>
         </h1>
         
@@ -30,39 +30,23 @@
 
         <hr>
 
-        <form>
+        <form action="params_info.html" method="POST">
             <table style="margin: auto; text-align: left">
                 <br>
-                <tr>
-                    <td>
-                        <label for="sender">Sender:</label>
-                    </td>
-                    <td>
-                        <input type="text" id="sender" name="sender" required>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="receiver">Receiver:</label>
-                    </td>
-                    <td>
-                        <input type="text" id="receiver" name="receiver" required>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="subject">Subject:</label>
-                    </td>
-                    <td>
-                        <input type="text" id="subject" name="subject" required>
-                    </td>
-                </tr>
                 <tr>
                     <td>
                         <label for="message">Message:</label>
                     </td>
                     <td>
                         <textarea id="message" name="message" rows="4" cols="30" required></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="subscribe">Subscribe:</label><br>
+                    </td>
+                    <td>
+                        <input type="checkbox" id="subscribe" name="subscribe">
                     </td>
                 </tr>
                 <tr>
