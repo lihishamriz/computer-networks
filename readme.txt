@@ -1,6 +1,7 @@
 Project Overview:
 
-This project is a simple HTTP server implementation in Java. It includes classes to handle configuration, incoming HTTP requests, and generating HTTP responses.
+This project is a simple HTTP server implementation in Java.
+It includes classes to handle configuration, incoming HTTP requests, and generating HTTP responses.
 
 Project Structure:
 - Sources: Contains the source code for the HTTP server.
