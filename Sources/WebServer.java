@@ -14,7 +14,7 @@ public class WebServer {
         int port = config.getPort();
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("Server is listening on port " + port + "\n");
+            System.out.println("Server is listening on port: " + port + "\n");
             ExecutorService executor = Executors.newFixedThreadPool(config.getMaxThreads());
 
             while (true) {

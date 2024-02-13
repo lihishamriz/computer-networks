@@ -24,7 +24,7 @@ public class HTTPRequest {
 
             String[] firstLineParts = lines[0].split(" ");
             type = firstLineParts[0];
-            requestedPage = firstLineParts[1];
+            requestedPage = firstLineParts[1].replaceAll("\\.\\./", "");
 
             String[] imageExtensions = {".bmp", ".gif", ".png", ".jpg"};
             for (String extension : imageExtensions) {
