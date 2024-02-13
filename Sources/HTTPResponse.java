@@ -69,8 +69,8 @@ public class HTTPResponse {
             byte[] fileBytes = readFile(file);
 
             String fileContent = new String(fileBytes, StandardCharsets.UTF_8);
-            fileContent = fileContent.replace("[message]", parameters.get("message"));
-            fileContent = fileContent.replace("[subscribe]", parameters.get("subscribe"));
+            fileContent = fileContent.replace("[message]", parameters.get("message") != null ? parameters.get("message") : "");
+            fileContent = fileContent.replace("[subscribe]", parameters.get("subscribe") != null ? "Yes" : "No");
 
             byte[] htmlBytes = fileContent.getBytes(StandardCharsets.UTF_8);
             sendOKResponse(htmlBytes, "text/html", String.valueOf(htmlBytes.length), true);
