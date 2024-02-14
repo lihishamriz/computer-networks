@@ -152,10 +152,8 @@ public class HTTPResponse {
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
         return switch (extension) {
             case "html" -> "text/html";
-            case "bmp" -> "image/bmp";
-            case "gif" -> "image/gif";
-            case "png" -> "image/png";
-            case "jpg" -> "image/jpeg";
+            case "bmp", "gif", "png", "jpg" -> "image";
+            case "ico" -> "icon";
             default -> "application/octet-stream";
         };
     }
