@@ -22,7 +22,7 @@ public class HTTPRequest {
         Config config = new Config("config.ini");
 
         try {
-            System.out.println("Request header:\n" + requestHeader + "\n");
+            System.out.println("Request Header:\n" + requestHeader + "\n");
 
             rawRequestHeader = requestHeader;
             parameters = new HashMap<>();

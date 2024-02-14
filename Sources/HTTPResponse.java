@@ -93,7 +93,7 @@ public class HTTPResponse {
             responseHeader += "Content-Length: " + contentLength + "\r\n\r\n";
         }
 
-        System.out.println("Response header:\n" + responseHeader);
+        System.out.println("Response Header:\n" + responseHeader);
 
         try {
             output.write(responseHeader.getBytes());
@@ -146,7 +146,7 @@ public class HTTPResponse {
 
     private void sendResponse(int statusCode, String statusMessage) {
         String responseHeader = "HTTP/1.1 " + statusCode + " " + statusMessage + "\r\n\r\n";
-        System.out.println("Response header:\n" + responseHeader);
+        System.out.println("Response Header:\n" + responseHeader);
 
         try {
             output.write(responseHeader.getBytes());
