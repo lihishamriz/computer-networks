@@ -12,7 +12,7 @@ public class HTTPRequestTest {
         String requestHeader = "GET /index.html HTTP/1.1\r\n";
         BufferedReader reader = new BufferedReader(new StringReader(requestHeader));
         HTTPRequest httpRequest = new HTTPRequest(requestHeader, reader);
-        assertEquals("/index.html", httpRequest.getRequestedPage(), "Requested page should be /index.html");
+        assertEquals("index.html", httpRequest.getRequestedPage(), "Requested page should be index.html");
     }
 
     @Test

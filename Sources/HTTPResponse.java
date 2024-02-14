@@ -41,10 +41,10 @@ public class HTTPResponse {
 
     private void handleGetAndHeadRequest() {
         String requestedPage = httpRequest.getRequestedPage();
-        if (requestedPage.equals("/")){
+        if (requestedPage.isEmpty()){
             requestedPage = this.config.getDefaultPage();
         }
-        if (requestedPage.startsWith("/secret/") && !httpRequest.getIsAuthenticated()) {
+        if (requestedPage.startsWith("secret/") && !httpRequest.getIsAuthenticated()) {
             sendUnauthorizedResponse();
             return;
         }
@@ -67,9 +67,9 @@ public class HTTPResponse {
     }
 
     private void handlePostRequest() {
-        if (this.httpRequest.getRequestedPage().equals("/params_info.html")) {
+        if (this.httpRequest.getRequestedPage().equals("params_info.html")) {
             handleParamsInfo();
-        } else if (this.httpRequest.getRequestedPage().equals("/upload")) {
+        } else if (this.httpRequest.getRequestedPage().equals("upload")) {
             handleFileUpload();
         } else {
             sendOKResponse();
@@ -157,7 +157,7 @@ public class HTTPResponse {
 
     private void handleParamsInfo() {
         HashMap<String, String> parameters = this.httpRequest.getParameters();
-        File file = Paths.get(this.config.getRoot() + "/params_info.html").toFile();
+        File file = Paths.get(this.config.getRoot() + "params_info.html").toFile();
         byte[] fileBytes = readFile(file);
 
         String fileContent = new String(fileBytes, StandardCharsets.UTF_8);

@@ -32,11 +32,11 @@ public class HTTPRequest {
             String[] firstLineParts = lines[0].split(" ");
             type = firstLineParts[0];
             String[] pageParts = firstLineParts[1].split("\\?");
-            requestedPage = pageParts[0].replaceAll("\\.\\./", "");
+            requestedPage = pageParts[0].replaceAll("\\.\\./", "").substring(1);
             if (pageParts.length > 1) {
                 parseParameters(pageParts[1]);
             }
-            if (requestedPage.endsWith("/") && !requestedPage.equals("/")) {
+            if (requestedPage.endsWith("/")) {
                 requestedPage = requestedPage.substring(0, requestedPage.length() - 1);
             }
 

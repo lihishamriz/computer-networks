@@ -12,7 +12,7 @@ public class ConfigTest {
     @Test
     public void testGetRoot_DefaultRoot() {
         Config config = new Config("test-config.ini");
-        assertEquals("www/lab/html/", config.getRoot(), "Default root should be www/lab/html/");
+        assertEquals(config.getRoot().contains("/www/lab/html/"), true, "Default root should be ~/www/lab/html/");
     }
 
     @Test

@@ -22,7 +22,10 @@ public class Config {
     }
 
     public String getRoot() {
-        return properties.getProperty("root", "www/lab/html/");
+        String userHome = System.getProperty("user.home");
+        String root = properties.getProperty("root", "~/www/lab/html/");
+
+        return root.replaceFirst("^~", userHome);
     }
 
     public String getDefaultPage() {
