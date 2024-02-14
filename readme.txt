@@ -10,7 +10,7 @@ Project Structure:
   - HTTPResponse.java: Generates appropriate HTTP responses based on the request type and content.
   - WebServer.java: Main entry point for the HTTP server, listens for incoming connections and delegates request handling.
 
-- Tests: Contains test cases for the source code classes.
+- Test: Contains test cases for the source code classes.
   - ConfigTest.java: Tests for the Config class to ensure correct parsing of configuration settings.
   - HTTPRequestTest.java: Tests for the HTTPRequest class to handle various HTTP request scenarios.
   - HTTPResponseTest.java: Tests for the HTTPResponse class to generate proper HTTP responses.
@@ -18,7 +18,7 @@ Project Structure:
 - config.ini: Configuration file for the server, specifying settings such as port number, root directory, etc.
 - compile.sh: Shell script to compile the Java source files.
 - run.sh: Shell script to run the compiled server.
-- server root directory: Root directory for serving web content.
+- server root directory (www/lab/html): Root directory for serving web content.
 - bonus.txt: Document outlining any additional features or bonuses implemented, if applicable.
 
 Design Choices:
