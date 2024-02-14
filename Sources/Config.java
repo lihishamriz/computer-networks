@@ -3,6 +3,9 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class Config {
+    public static final String username = "admin";
+    public static final String password = "1234";
+
     private Properties properties;
 
     public Config(String configFile) {
@@ -28,5 +31,13 @@ public class Config {
 
     public int getMaxThreads() {
         return Integer.parseInt(properties.getProperty("maxThreads", "10"));
+    }
+
+    public String getServerUsername() {
+        return username;
+    }
+
+    public String getServerPassword() {
+        return password;
     }
 }

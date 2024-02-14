@@ -27,4 +27,31 @@ public class HTTPRequestTest {
         expectedParams.put("subscribe", "yes");
         assertEquals(expectedParams, httpRequest.getParameters(), "Parameters should be extracted from POST request");
     }
+
+    @Test
+    public void testGetRequestWithParameters() {
+        String requestHeader = "GET /index.html?param1=value1&param2=value2 HTTP/1.1\r\n";
+        BufferedReader reader = new BufferedReader(new StringReader(requestHeader));
+        HTTPRequest httpRequest = new HTTPRequest(requestHeader, reader);
+        HashMap<String, String> expectedParams = new HashMap<>();
+        expectedParams.put("param1", "value1");
+        expectedParams.put("param2", "value2");
+        assertEquals(expectedParams, httpRequest.getParameters(), "Parameters should be extracted from GET request");
+    }
+
+    @Test
+    public void testPostRequestWithNoParameters() throws IOException {
+        String requestHeader = "POST /submit HTTP/1.1\r\nContent-Length: 0\r\n\r\n";
+        BufferedReader reader = new BufferedReader(new StringReader(requestHeader));
+        HTTPRequest httpRequest = new HTTPRequest(requestHeader, reader);
+        assertTrue(httpRequest.getParameters().isEmpty(), "No parameters should be extracted from POST request with no body");
+    }
+
+    @Test
+    public void testChunkedRequest() throws IOException {
+        String requestHeader = "GET /chunked HTTP/1.1\r\nchunked: yes\r\n\r\n";
+        BufferedReader reader = new BufferedReader(new StringReader(requestHeader));
+        HTTPRequest httpRequest = new HTTPRequest(requestHeader, reader);
+        assertTrue(httpRequest.getIsChunked(), "Chunked flag should be true for chunked request");
+    }
 }

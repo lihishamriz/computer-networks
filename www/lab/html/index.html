@@ -56,6 +56,24 @@
             </table>
             <br>
             <input type="submit" value="Submit">
-        </form>                   
+        </form>
+
+        <br>
+
+        <form action="upload" method="POST" enctype="multipart/form-data">
+            <table style="margin: auto; text-align: left">
+                <tr>
+                    <td>
+                        <label for="file">File:</label><br>
+                    </td>
+                    <td>
+                        <input type="file" id="file" name="file" accept=".html">
+                    </td>
+                    <td>
+                        <input type="submit" value="Upload">
+                    </td>
+                </tr>
+            </table>
+        </form>
     </body>
 </html>

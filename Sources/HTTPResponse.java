@@ -41,8 +41,12 @@ public class HTTPResponse {
 
     private void handleGetAndHeadRequest() {
         String requestedPage = httpRequest.getRequestedPage();
-        if(requestedPage.equals("/")){
+        if (requestedPage.equals("/")){
             requestedPage = this.config.getDefaultPage();
+        }
+        if (requestedPage.startsWith("/secret/") && !httpRequest.getIsAuthenticated()) {
+            sendUnauthorizedResponse();
+            return;
         }
         Path filePath = Paths.get(this.config.getRoot() + requestedPage);
         if (!Files.exists(filePath) || Files.isDirectory(filePath)) {
@@ -56,33 +60,28 @@ public class HTTPResponse {
             String contentType = getContentType(requestedPage);
             String contentLength = String.valueOf(fileBytes.length);
 
-            sendOKResponse(fileBytes, contentType, contentLength, this.httpRequest.getType().equals("GET"));
+            sendOKResponseWithBody(fileBytes, contentType, contentLength, this.httpRequest.getType().equals("GET"));
         } catch (Exception e) {
             sendInternalServerErrorResponse();
         }
     }
 
     private void handlePostRequest() {
-        HashMap<String, String> parameters = this.httpRequest.getParameters();
         if (this.httpRequest.getRequestedPage().equals("/params_info.html")) {
-            File file = Paths.get(this.config.getRoot() + "/params_info.html").toFile();
-            byte[] fileBytes = readFile(file);
-
-            String fileContent = new String(fileBytes, StandardCharsets.UTF_8);
-            fileContent = fileContent.replace("[message]", parameters.get("message") != null ? parameters.get("message") : "");
-            fileContent = fileContent.replace("[subscribe]", parameters.get("subscribe") != null ? "Yes" : "No");
-
-            byte[] htmlBytes = fileContent.getBytes(StandardCharsets.UTF_8);
-            sendOKResponse(htmlBytes, "text/html", String.valueOf(htmlBytes.length), true);
+            handleParamsInfo();
+        } else if (this.httpRequest.getRequestedPage().equals("/upload")) {
+            handleFileUpload();
+        } else {
+            sendOKResponse();
         }
     }
 
     private void handleTraceRequest() {
-        String raw = this.httpRequest.getRawRequest();
-        sendOKResponse(raw.getBytes(StandardCharsets.UTF_8), "application/octet-stream", String.valueOf(raw.length()), true);
+        String raw = this.httpRequest.getRawRequestHeader();
+        sendOKResponseWithBody(raw.getBytes(StandardCharsets.UTF_8), "application/octet-stream", String.valueOf(raw.length()), true);
     }
 
-    private void sendOKResponse(byte[] fileBytes, String contentType, String contentLength, Boolean includeBody) {
+    private void sendOKResponseWithBody(byte[] fileBytes, String contentType, String contentLength, Boolean includeBody) {
         boolean isChunked = this.httpRequest.getIsChunked();
         String responseHeader = "HTTP/1.1 200 OK\r\n" +
                 "Content-Type: " + contentType + "\r\n";
@@ -121,8 +120,16 @@ public class HTTPResponse {
         }
     }
 
+    private void sendOKResponse() {
+        sendResponse(200, "OK");
+    }
+
     private void sendBadRequestResponse() {
         sendResponse(400, "Bad Request");
+    }
+
+    private void sendUnauthorizedResponse() {
+        sendResponse(401, "Unauthorized");
     }
 
     private void sendNotFoundResponse() {
@@ -144,6 +151,63 @@ public class HTTPResponse {
         try {
             output.write(responseHeader.getBytes());
         } catch (IOException ioException) {
+            sendInternalServerErrorResponse();
+        }
+    }
+
+    private void handleParamsInfo() {
+        HashMap<String, String> parameters = this.httpRequest.getParameters();
+        File file = Paths.get(this.config.getRoot() + "/params_info.html").toFile();
+        byte[] fileBytes = readFile(file);
+
+        String fileContent = new String(fileBytes, StandardCharsets.UTF_8);
+        fileContent = fileContent.replace("[message]", parameters.get("message") != null ? parameters.get("message") : "");
+        fileContent = fileContent.replace("[subscribe]", parameters.get("subscribe") != null ? "Yes" : "No");
+
+        byte[] htmlBytes = fileContent.getBytes(StandardCharsets.UTF_8);
+        sendOKResponseWithBody(htmlBytes, "text/html", String.valueOf(htmlBytes.length), true);
+    }
+
+    private void handleFileUpload() {
+        try {
+            String fileName = "";
+            String body = "";
+
+            String[] headersAndBody = this.httpRequest.getRawRequestBody().split("\r\n\r\n", 2);
+            if (headersAndBody.length == 2) {
+                String headers = headersAndBody[0];
+                body = headersAndBody[1];
+
+                String[] headerLines = headers.split("\r\n");
+                for (String line : headerLines) {
+                    if (line.startsWith("Content-Disposition") && line.contains("filename=")) {
+                        String[] parts = line.split("; ");
+                        for (String part : parts) {
+                            if (part.startsWith("filename=")) {
+                                fileName = part.substring("filename=\"".length(), part.length() - 1);
+                            }
+                        }
+                    }
+                }
+
+                String contentType = this.httpRequest.getContentType();
+                String boundary = contentType.split("boundary=")[1];
+
+                int index = body.indexOf("--" + boundary) - 2;
+                body = body.substring(0, index);
+            }
+
+            byte[] fileBytes = body.getBytes();
+            Path filePath = Paths.get(config.getRoot(), fileName);
+            Files.write(filePath, fileBytes);
+
+            String htmlResponse = "<html><body>" +
+                    "<h2>File uploaded successfully!</h2>" +
+                    "<p><a href=\"" + fileName + "\">Go to file!</a></p>" +
+                    "</body></html>";
+
+            sendOKResponseWithBody(htmlResponse.getBytes(), getContentType(fileName), String.valueOf(htmlResponse.length()), true);
+        } catch (Exception e) {
             sendInternalServerErrorResponse();
         }
     }

@@ -1,4 +1,3 @@
-import javax.naming.ConfigurationException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -68,7 +67,7 @@ public class WebServer {
             // Close the connection
             clientSocket.close();
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            System.err.println("Unexpected error occurred: " + e.getMessage());
         }
     }
 }

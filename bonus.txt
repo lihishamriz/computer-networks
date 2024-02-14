@@ -1,0 +1,20 @@
+Bonus Features Implemented:
+1. Authentication for Dedicated Folder:
+    The project implements authentication for a dedicated folder named "secret".
+    When a user attempts to access any resource within the "secret" folder, the server requires authentication.
+    If the user provides incorrect credentials or fails to authenticate, the server responds with an "Unauthorized" status code (401), indicating that access to the requested resource is denied.
+    The credentials for authentication are hard-coded within the Config class as username ("admin") and password ("1234") constants.
+    This is not an ideal practice as credentials should typically be stored securely and retrieved from a secure source like environment variables, databases, or a secure vault.
+    However, for the sake of simplicity, the credentials are directly embedded within the codebase.
+
+2. Support for Uploading HTML Files to the Server:
+    The server supports file uploads, specifically HTML files, via a POST request to the path "/upload".
+    Users can conveniently upload HTML files using a button provided in the index.html file.
+    This feature is implemented in a basic stage where only HTML files can be uploaded.
+    After a successful upload, After a successful upload, the server returns an HTML response containing a link to the newly uploaded HTML file.
+    The file becomes accessible through the browser, allowing users to view HTML content served directly from the server.
+    This feature enables users to dynamically add content to the server and serve HTML pages without needing to manually add them to the server's file system.
+
+3. Addition of Tests for Each Class:
+    Each class in the project has been accompanied by tests covering both successful and failure scenarios.
+    These tests ensure that the functionality of each class behaves as expected under normal conditions and gracefully handles unexpected inputs or errors.
