@@ -36,7 +36,7 @@ public class HTTPRequest {
             if (pageParts.length > 1) {
                 parseParameters(pageParts[1]);
             }
-            if (requestedPage.endsWith("/")) {
+            if (requestedPage.endsWith("/") && !requestedPage.equals("/")) {
                 requestedPage = requestedPage.substring(0, requestedPage.length() - 1);
             }
 
